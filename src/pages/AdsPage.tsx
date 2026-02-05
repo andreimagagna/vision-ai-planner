@@ -1,56 +1,250 @@
-import { useState } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Card } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
-import { Target, Users, Megaphone, Copy, Check, BarChart3, Zap, Fingerprint } from "lucide-react"
+import { Target, Users, Megaphone, Copy, Check, BarChart3, Zap, Fingerprint, Download, Image as ImageIcon, Bell, XCircle, CheckCircle, AlertTriangle } from "lucide-react"
+import { toPng } from 'html-to-image'
 
 // Dados da Estratégia
 const STRATEGY = {
   offer: {
     name: "Vision AI Planner 2026",
     price: "R$ 49,90",
-    promise: "Planejamento Estratégico Completo em Segundos com IA",
-    pain: "Sensação de atraso, falta de clareza, metas abandonadas em Fevereiro."
+    promise: "De Metas Abstratas para um Plano Executável em Segundos",
+    pain: "A frustração de chegar no fim do ano e não ter realizado nada."
   },
   audiences: [
     {
-      name: "Empreendedores Digitais",
-      interests: ["Marketing Digital", "Startup", "SaaS", "Produtividade", "Notion", "ClickUp"],
-      pain: "Muitas ideias, pouca execução. Precisam de um plano claro.",
-      hook: "Pare de planejar no papel de pão. Use IA para criar um roadmap estratégico real."
+      name: "Público Aberto (Broad)",
+      interests: ["Nenhum (Sem segmentação)"],
+      pain: "O Criativo qualifica.",
+      hook: "Deixe o algoritmo do Meta encontrar os compradores baseado em quem clica no anúncio (Creative-First Strategy)."
     },
     {
-      name: "TDAH & Procrastinadores",
-      interests: ["TDAH Adulto", "Dopamina", "Desenvolvimento Pessoal", "Bullet Journal"],
-      pain: "Paralisia por análise. Começam o ano bem e param.",
-      hook: "Seu cérebro precisa de dopamina visual. O Vision AI gamifica suas metas."
-    },
-    {
-      name: "Carreira & Corporativo",
-      interests: ["LinkedIn", "Gestão de Projetos", "Liderança", "MBA"],
-      pain: "Precisam mostrar resultados e organização para crescer.",
-      hook: "Transforme sua ambição em um plano de ação estratégico profissional."
+      name: "Stack de Interesses (Teste)",
+      interests: ["Marketing Digital", "Empreendedorismo", "Produtividade", "Notion", "Trello"],
+      pain: "Buscam ferramentas, mas falham na execução.",
+      hook: "Para quem já testou tudo e continua desorganizado."
     }
   ],
   ads: [
     {
-      type: "Video / Reels",
-      hook: "Fevereiro chegou e você ainda não começou?",
-      script: "POV: Você percebeu que 1/12 do ano já passou e suas metas continuam no papel. [Mostra a tela do Vision gerando o plano]. A IA cria seu roadmap mês a mês, semana a semana. Pare de se enganar. Clique e comece 2026 agora.",
+      type: "Imagem Estática (Stop Scroll)",
+      hook: "1/12 do ano morreu.",
+      script: "Você já salvou 47 posts de 'produtividade' no Instagram. Tem Notion, Trello, planilha do Google e 4 bloquinhos de papel. Mas na segunda de manhã você acorda e pensa: 'Por onde eu começo?' O problema não é falta de ferramenta. É falta de SISTEMA. Vision AI pega sua meta e gera: 52 semanas de tarefas claras. O que fazer essa segunda (não semana que vem).",
       cta: "Gerar Meu Plano Agora"
     },
     {
-      type: "Static / Carousel",
-      headline: "Não é mais um planner de papel.",
-      body: "É um estrategista de IA. 1. Você define a meta. 2. A IA quebra em táticas. 3. Você executa (e ganha XP).",
-      visual: "Comparativo: Planner Comum (Confuso) vs Vision AI (Estruturado e Dark Mode bonito)."
+      type: "Imagem Estática (Prova Visual - Dashboard)",
+      hook: "A pior sensação do mundo é terminar a sexta exausto sem ter avançado.",
+      script: "Vision AI resolve isso em 3 níveis: 1. Segunda: Lista exata do que fazer. 2. Sexta: Relatório visual (você avançou 35% da meta). 3. Fim do mês: IA recalcula a rota se você atrasou. Seu cérebro RELAXA porque o sistema pensa por você. R$ 49,90/mês • Primeira semana grátis.",
+      cta: "Testar 7 Dias Grátis"
     },
     {
-      type: "Direct Response / Story",
-      hook: "O segredo de quem executa 10x mais.",
-      script: "Não é força de vontade, é clareza. O Vision AI remove a névoa mental. Ele diz exatamente o que fazer na segunda-feira de manhã.",
-      cta: "Desbloquear Acesso Vitalício"
+      type: "Imagem Estática (Punch Tipográfico)",
+      hook: "Sua meta vai morrer (de novo)?",
+      script: "Fevereiro acabando. Sua meta de 2026 tá igual a de 2025? (Esquecida numa planilha que você abriu 1x?) Empresas de bilhões não fazem 'resoluções'. Elas fazem ENGENHARIA REVERSA. Vision AI faz isso com sua vida em 15 minutos. Você fala: 'Quero faturar 80k em 2026'. A IA cospe: 52 semanas de ações práticas. Não é motivação. É um GPS que te cobra toda semana.",
+      cta: "Começar Agora"
     }
   ]
+}
+
+const CreativeGenerator = () => {
+  const ref1 = useRef<HTMLDivElement>(null)
+  const ref2 = useRef<HTMLDivElement>(null)
+  const ref3 = useRef<HTMLDivElement>(null)
+
+  const downloadCreative = useCallback(async (ref: React.RefObject<HTMLDivElement>, name: string) => {
+    if (ref.current === null) return
+
+    try {
+      const dataUrl = await toPng(ref.current, { cacheBust: true, pixelRatio: 2 })
+      const link = document.createElement('a')
+      link.download = `${name}.png`
+      link.href = dataUrl
+      link.click()
+    } catch (err) {
+      console.error(err)
+    }
+  }, [])
+
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-3 gap-8">
+        
+        {/* Creative 1: Stop Scroll (Dor Visual - Calendar) */}
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground font-medium text-center">Criativo 1: "Stop Scroll - Dor Visual"</p>
+          <div className="border border-white/10 rounded-lg overflow-hidden bg-background max-w-[360px] mx-auto shadow-2xl">
+             <div ref={ref1} className="w-[360px] h-[360px] relative bg-gradient-to-br from-black to-zinc-900 flex flex-col p-6 overflow-hidden">
+                {/* Background Calendar Overlay */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none flex flex-wrap gap-2 p-4">
+                   {Array.from({ length: 12 }).map((_, i) => (
+                     <div key={i} className="w-16 h-16 border border-white/20 rounded-md" />
+                   ))}
+                </div>
+
+                {/* Central Focus */}
+                <div className="relative z-10 flex flex-col h-full justify-center text-center">
+                   
+                   {/* January Crossed Out */}
+                   <div className="relative mx-auto mb-8">
+                      <div className="w-24 h-24 border border-zinc-700 bg-zinc-900 rounded-xl flex items-center justify-center relative">
+                        <span className="text-zinc-500 font-bold">JAN</span>
+                        <XCircle className="absolute inset-0 w-full h-full text-red-600 opacity-80" strokeWidth={1} />
+                      </div>
+                      <p className="text-red-500 text-xs font-bold mt-2 uppercase tracking-tight">Perdido</p>
+                   </div>
+
+                   <h2 className="text-3xl font-heading font-bold text-white leading-tight mb-4">
+                     1/12 do ano <br/>
+                     <span className="text-red-500">MORREU.</span>
+                   </h2>
+
+                   <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-left">
+                     <p className="text-zinc-300 text-sm mb-1">❌ 11 apps de produtividade</p>
+                     <p className="text-zinc-300 text-sm">❌ 0 clareza pra segunda-feira</p>
+                   </div>
+                </div>
+
+                {/* Footer Logo */}
+                <div className="absolute bottom-4 left-0 right-0 text-center">
+                   <div className="flex items-center justify-center gap-1.5 opacity-50">
+                     <Zap className="w-3 h-3 text-white" />
+                     <span className="text-[10px] text-white tracking-[0.2em] font-bold">VISION.AI</span>
+                   </div>
+                </div>
+             </div>
+          </div>
+          <Button onClick={() => downloadCreative(ref1, 'vision-creative-1-stop-scroll')} className="w-full gap-2" variant="outline">
+            <Download className="w-4 h-4" /> Baixar (Stop Scroll)
+          </Button>
+        </div>
+
+        {/* Creative 2: Social Proof + Urgency (Dashboard) */}
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground font-medium text-center">Criativo 2: "Prova Social + Urgência"</p>
+          <div className="border border-white/10 rounded-lg overflow-hidden bg-background max-w-[360px] mx-auto shadow-2xl">
+             <div ref={ref2} className="w-[360px] h-[360px] relative bg-white overflow-hidden flex flex-col justify-between">
+                
+                {/* Header Text */}
+                <div className="p-6 pb-2 text-center z-10">
+                   <h2 className="text-zinc-900 text-xl font-bold leading-tight">
+                     Sexta-feira, 18h.
+                   </h2>
+                   <p className="text-zinc-500 text-sm mt-1 mb-4 leading-tight">
+                     Você sabe <span className="text-zinc-900 font-bold bg-yellow-200 px-1">EXATAMENTE</span> o que avançou essa semana?
+                   </p>
+                </div>
+
+                {/* Dashboard Mockup (Floating) */}
+                <div className="mx-6 mb-4 bg-zinc-900 rounded-xl p-4 shadow-2xl transform rotate-[-2deg] border border-zinc-200 scale-105">
+                   {/* Progress */}
+                   <div className="flex justify-between text-[10px] text-zinc-400 mb-1 font-mono">
+                     <span>META MENSAL</span>
+                     <span className="text-green-400 font-bold">35%</span>
+                   </div>
+                   <div className="h-1.5 bg-zinc-800 rounded-full mb-4 overflow-hidden">
+                     <div className="h-full w-[35%] bg-green-500" />
+                   </div>
+
+                   {/* Tasks */}
+                   <div className="space-y-2">
+                     {[1,2,3].map(i => (
+                       <div key={i} className="flex items-center gap-2">
+                         <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                           <Check className="w-2.5 h-2.5 text-green-500" />
+                         </div>
+                         <div className="h-2 w-32 bg-zinc-800 rounded animate-pulse" />
+                       </div>
+                     ))}
+                     <div className="flex items-center gap-2 opacity-50">
+                        <div className="w-4 h-4 rounded-full border border-zinc-700" />
+                        <div className="h-2 w-24 bg-zinc-800/50 rounded" />
+                     </div>
+                   </div>
+
+                   {/* Alert Tag */}
+                   <div className="mt-4 inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-[10px] text-red-400 font-medium">
+                      <AlertTriangle className="w-3 h-3" />
+                      Você está 2 dias atrasado
+                   </div>
+                </div>
+
+                {/* Footer Social Proof */}
+                <div className="bg-zinc-50 border-t border-zinc-100 p-4 text-center">
+                   <div className="flex items-center justify-center -space-x-2 mb-2">
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="w-6 h-6 rounded-full bg-zinc-300 border-2 border-white" />
+                      ))}
+                   </div>
+                   <p className="text-[10px] text-zinc-500 font-medium tracking-tight">
+                     <span className="text-zinc-900 font-bold">+1.200 pessoas</span> já salvaram fevereiro
+                   </p>
+                   <p className="text-[8px] text-zinc-400 mt-1 uppercase tracking-widest font-bold">VISION.AI</p>
+                </div>
+             </div>
+          </div>
+          <Button onClick={() => downloadCreative(ref2, 'vision-creative-2-proof')} className="w-full gap-2" variant="outline">
+             <Download className="w-4 h-4" /> Baixar (Social Proof)
+          </Button>
+        </div>
+
+        {/* Creative 3: Punch Typography */}
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground font-medium text-center">Criativo 3: "Punch Tipográfico"</p>
+          <div className="border border-white/10 rounded-lg overflow-hidden bg-background max-w-[360px] mx-auto shadow-2xl">
+             <div ref={ref3} className="w-[360px] h-[360px] relative bg-black flex flex-col justify-between p-8 overflow-hidden">
+                
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                   {/* Top */}
+                   <div>
+                     <h1 className="text-6xl font-heading font-bold text-white leading-none tracking-tighter">
+                       11 <br/>
+                       meses
+                     </h1>
+                     <p className="text-zinc-500 text-lg font-medium tracking-tight mt-1">
+                       sobraram.
+                     </p>
+                   </div>
+
+                   {/* Middle */}
+                   <div className="space-y-4">
+                      <h2 className="text-2xl text-zinc-300 font-medium leading-tight">
+                        Sua meta <span className="text-white border-b-2 border-red-600">vai morrer</span> <br/>
+                        (de novo)
+                      </h2>
+                      
+                      <p className="text-sm text-zinc-500 italic">
+                        ou você vai instalar <br/>
+                        um SISTEMA?
+                      </p>
+                   </div>
+
+                   {/* Bottom */}
+                   <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] text-zinc-500 tracking-[0.2em] font-bold uppercase mb-0.5">VISION.AI</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded border border-green-400/20">
+                          Teste 7 dias grátis
+                        </span>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+          <Button onClick={() => downloadCreative(ref3, 'vision-creative-3-typography')} className="w-full gap-2" variant="outline">
+            <Download className="w-4 h-4" /> Baixar (Tipográfico)
+          </Button>
+        </div>
+
+      </div>
+      <p className="text-center text-xs text-muted-foreground mt-8">
+        * As imagens são geradas em alta resolução (1080x1080 - Pixel Perfect) ao clicar em baixar.
+      </p>
+    </div>
+  )
 }
 
 export default function AdsPage() {
@@ -199,6 +393,18 @@ export default function AdsPage() {
               </Card>
             ))}
           </div>
+        </section>
+
+        {/* 4. Gerador de Criativos */}
+        <section>
+          <div className="flex items-center gap-2 mb-6 text-pink-400">
+            <ImageIcon className="w-5 h-5" />
+            <h2 className="text-xs font-bold uppercase tracking-widest">Gerador de Criativos</h2>
+          </div>
+          
+          <Card className="p-8 border-white/10 bg-black/20">
+            <CreativeGenerator />
+          </Card>
         </section>
 
         {/* Footer Link */}
