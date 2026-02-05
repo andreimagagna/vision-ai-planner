@@ -59,6 +59,7 @@ const transformPlanToDashboardData = (dbPlan: any) => {
     status: dbPlan.is_active ? "ativo" : "inativo",
     context: dbPlan.context,
     progress: Math.round((completedCount / totalTactics) * 100),
+    completedCount,
     quarters: quarters.map((q, index) => {
       const startWeek = (index * 13) + 1; // 1, 14, 27, 40
       const endWeek = startWeek + 12;     // 13, 26, 39, 52
@@ -188,7 +189,6 @@ export default function Dashboard() {
         const streakData = await checkAndUpdateStreak(user.id)
         if (streakData) {
           setStreak(streakData.current_streak)
-          setPerfectWeeks((streakData as any).total_completed_tactics || 0)
         }
 
         const { data, error } = await supabase
@@ -226,7 +226,9 @@ export default function Dashboard() {
 
 
         try {
-          setPlanData(transformPlanToDashboardData(data))
+          const dashboardData = transformPlanToDashboardData(data)
+          setPlanData(dashboardData)
+          setPerfectWeeks(dashboardData.completedCount)
         } catch (transformError) {
           console.error("Error transforming plan data:", transformError)
           // Don't redirect immediately, maybe show an error state or let the user know
