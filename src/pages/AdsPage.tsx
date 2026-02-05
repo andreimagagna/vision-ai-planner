@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback } from "react"
+import type { RefObject } from "react"
 import { Card } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
-import { Target, Users, Megaphone, Copy, Check, BarChart3, Zap, Fingerprint, Download, Image as ImageIcon, Bell, XCircle, CheckCircle, AlertTriangle } from "lucide-react"
+import { Target, Users, Megaphone, Copy, Check, Zap, Fingerprint, Download, Image as ImageIcon, XCircle, AlertTriangle } from "lucide-react"
 import { toPng } from 'html-to-image'
 
 // Dados da Estratégia
@@ -53,7 +54,7 @@ const CreativeGenerator = () => {
   const ref2 = useRef<HTMLDivElement>(null)
   const ref3 = useRef<HTMLDivElement>(null)
 
-  const downloadCreative = useCallback(async (ref: React.RefObject<HTMLDivElement>, name: string) => {
+  const downloadCreative = useCallback(async (ref: RefObject<HTMLDivElement | null>, name: string) => {
     if (ref.current === null) return
 
     try {
@@ -357,11 +358,11 @@ export default function AdsPage() {
                       <div className="bg-purple-500/20 px-3 py-1 rounded text-purple-300 text-xs font-bold uppercase">
                         {ad.type}
                       </div>
-                      <h3 className="font-bold text-white text-lg">"{ad.hook || ad.headline}"</h3>
+                      <h3 className="font-bold text-white text-lg">"{ad.hook}"</h3>
                     </div>
                     <Button 
                       variant="outline" 
-                      onClick={() => copyToClipboard(ad.script || ad.body || "", `ad-${i}`)}
+                      onClick={() => copyToClipboard(ad.script || "", `ad-${i}`)}
                       className="gap-2 border-white/10 hover:bg-white/10"
                     >
                       {copied === `ad-${i}` ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -369,25 +370,14 @@ export default function AdsPage() {
                     </Button>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <div className="bg-black/40 p-4 rounded-lg border border-white/5 font-mono text-sm text-gray-300 leading-relaxed">
-                        {ad.script || ad.body}
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Chamada para Ação (CTA):</span>
-                        <span className="font-bold text-primary">{ad.cta || "Saiba Mais"}</span>
-                      </div>
+                  <div className="space-y-4">
+                    <div className="bg-black/40 p-4 rounded-lg border border-white/5 font-mono text-sm text-gray-300 leading-relaxed">
+                      {ad.script}
                     </div>
-                    
-                    {ad.visual && (
-                      <div className="bg-white/5 p-4 rounded-lg flex items-center justify-center border border-dashed border-white/20">
-                        <div className="text-center">
-                          <BarChart3 className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-                          <p className="text-sm text-muted-foreground max-w-[200px]">{ad.visual}</p>
-                        </div>
-                      </div>
-                    )}
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Chamada para Ação (CTA):</span>
+                      <span className="font-bold text-primary">{ad.cta || "Saiba Mais"}</span>
+                    </div>
                   </div>
                 </div>
               </Card>
